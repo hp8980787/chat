@@ -34,10 +34,10 @@ export default {
   data() {
     return {
       messages: {},
-      data:'',
+      data: "",
       path: "ws://127.0.0.1:2346",
       socket: "",
-      form:{},
+      form: {},
     };
   },
   mounted() {
@@ -48,8 +48,7 @@ export default {
   },
   methods: {
     onSubmit() {
-        
-            this.send();
+      this.send();
     },
     init: function () {
       if (typeof WebSocket === "undefined") {
@@ -71,11 +70,12 @@ export default {
     error: function () {
       console.log("连接错误");
     },
-    getMessage: function (msg) {
-      console.log(msg.data);
+    getMessage: function (e) {
+      var data = eval("(" + e.data + ")");
+      this.joinChat(data);
     },
-    send: function (params) {
-      this.socket.send('sdsdsd');
+    send: function () {
+      this.socket.send(params);
     },
     close: function () {
       console.log("socket已经关闭");
@@ -83,6 +83,12 @@ export default {
     destroyed() {
       // 销毁监听
       this.socket.onclose = this.close;
+    },
+    async joinChat(msg) {
+      let { data } = await axios.post("/api/chat/join", {
+        msg,
+      });
+      console.log(data);
     },
   },
 };

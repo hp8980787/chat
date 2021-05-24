@@ -17,4 +17,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:api')->post('/chat/join',[\App\Http\Controllers\Api\ChatController::class,'join']);
+Route::middleware('auth:api')->post('/chat/join','Api\ChatController@join');
