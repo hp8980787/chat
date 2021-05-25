@@ -3,13 +3,14 @@
     <el-col :span="24">
       <div class="chat">
         <ul class="list-group">
-          <li class="list-group-item disabled" aria-disabled="true">
-            A disabled item
+          <li
+            v-for="(item, index) in messages"
+            :key="index"
+            class="list-group-item disabled"
+            aria-disabled="true"
+          >
+            {{ item.data.name }} : {{ item.data.content }} {{ item.data.time }}
           </li>
-          <li class="list-group-item">A second item</li>
-          <li class="list-group-item">A third item</li>
-          <li class="list-group-item">A fourth item</li>
-          <li class="list-group-item">And a fifth one</li>
         </ul>
       </div>
     </el-col>
@@ -33,7 +34,7 @@ export default {
   props: ["api_token"],
   data() {
     return {
-      messages: {},
+      messages: [],
       data: "",
       path: "ws://127.0.0.1:2346",
       socket: "",
@@ -41,7 +42,6 @@ export default {
     };
   },
   mounted() {
-    this.path = this.path + "/?api_token=" + this.api_token;
     // this.path = this.path + "/api_token=" + this.api_token;
     console.log(this.path);
     this.init();
@@ -71,11 +71,24 @@ export default {
       console.log("连接错误");
     },
     getMessage: function (e) {
-      var data = eval("(" + e.data + ")");
-      this.joinChat(data);
+      // this.$message(e.data, "info");
+      let data = JSON.parse(e.data);
+      let type = data.type || "";
+      console.log(type);
+      switch (type) {
+        case "init":
+          this.joinChat(data);
+          break;
+        case "say":
+          this.messages.push(data);
+        case "send":
+          this.messages.push(data);
+        default:
+          console.log(data);
+      }
     },
     send: function () {
-      this.socket.send(params);
+      this.socket.send(this.data);
     },
     close: function () {
       console.log("socket已经关闭");
@@ -85,10 +98,7 @@ export default {
       this.socket.onclose = this.close;
     },
     async joinChat(msg) {
-      let { data } = await axios.post("/api/chat/join", {
-        msg,
-      });
-      console.log(data);
+      let { data } = await axios.post("/api/chat/join", msg);
     },
   },
 };

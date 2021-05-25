@@ -3585,12 +3585,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "chat",
   props: ["api_token"],
   data: function data() {
     return {
-      messages: {},
+      messages: [],
       data: "",
       path: "ws://127.0.0.1:2346",
       socket: "",
@@ -3598,8 +3599,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     };
   },
   mounted: function mounted() {
-    this.path = this.path + "/?api_token=" + this.api_token; // this.path = this.path + "/api_token=" + this.api_token;
-
+    // this.path = this.path + "/api_token=" + this.api_token;
     console.log(this.path);
     this.init();
   },
@@ -3628,11 +3628,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       console.log("连接错误");
     },
     getMessage: function getMessage(e) {
-      var data = eval("(" + e.data + ")");
-      this.joinChat(data);
+      // this.$message(e.data, "info");
+      var data = JSON.parse(e.data);
+      var type = data.type || "";
+      console.log(type);
+
+      switch (type) {
+        case "init":
+          this.joinChat(data);
+          break;
+
+        case "say":
+          this.messages.push(data);
+
+        case "send":
+          this.messages.push(data);
+
+        default:
+          console.log(data);
+      }
     },
     send: function send() {
-      this.socket.send(params);
+      this.socket.send(this.data);
     },
     close: function close() {
       console.log("socket已经关闭");
@@ -3650,16 +3667,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios.post("/api/chat/join", {
-                  msg: msg
-                });
+                return axios.post("/api/chat/join", msg);
 
               case 2:
                 _yield$axios$post = _context.sent;
                 data = _yield$axios$post.data;
-                console.log(data);
 
-              case 5:
+              case 4:
               case "end":
                 return _context.stop();
             }
@@ -101058,32 +101072,32 @@ var render = function() {
     [
       _c("el-col", { attrs: { span: 24 } }, [
         _c("div", { staticClass: "chat" }, [
-          _c("ul", { staticClass: "list-group" }, [
-            _c(
-              "li",
-              {
-                staticClass: "list-group-item disabled",
-                attrs: { "aria-disabled": "true" }
-              },
-              [_vm._v("\n          A disabled item\n        ")]
-            ),
-            _vm._v(" "),
-            _c("li", { staticClass: "list-group-item" }, [
-              _vm._v("A second item")
-            ]),
-            _vm._v(" "),
-            _c("li", { staticClass: "list-group-item" }, [
-              _vm._v("A third item")
-            ]),
-            _vm._v(" "),
-            _c("li", { staticClass: "list-group-item" }, [
-              _vm._v("A fourth item")
-            ]),
-            _vm._v(" "),
-            _c("li", { staticClass: "list-group-item" }, [
-              _vm._v("And a fifth one")
-            ])
-          ])
+          _c(
+            "ul",
+            { staticClass: "list-group" },
+            _vm._l(_vm.messages, function(item, index) {
+              return _c(
+                "li",
+                {
+                  key: index,
+                  staticClass: "list-group-item disabled",
+                  attrs: { "aria-disabled": "true" }
+                },
+                [
+                  _vm._v(
+                    "\n          " +
+                      _vm._s(item.data.name) +
+                      " : " +
+                      _vm._s(item.data.content) +
+                      " " +
+                      _vm._s(item.data.time) +
+                      "\n        "
+                  )
+                ]
+              )
+            }),
+            0
+          )
         ])
       ]),
       _vm._v(" "),
